@@ -1,0 +1,153 @@
+    <!DOCTYPE html>
+    <html lang="uk">
+    <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Історичний Квіз</title>
+    <link rel="stylesheet" href="test.css" />
+    </head>
+    <body>
+    <h1>Виберіть правильну відповідь</h1>
+
+    <div id="quiz-section">
+        <div id="selected-question"></div>
+        <div id="answer-buttons" class="btn-container"></div>
+        <div id="result"></div>
+        <button id="next-button" style="display: none;">Наступне питання</button>
+    </div>
+
+    <div id="completion-message">
+        <h2>🎉 Вітаємо! Ви відповіли на всі питання!</h2>
+        <p id="stats"></p>
+        <button onclick="restartQuiz()">Почати знову</button>
+    </div>
+
+    <script>
+        const questions = [
+        "Creation Stories",
+        "Origin Theories of Canada",
+        "First Contact",
+        "Doctrine of Discovery",
+        "Terra Nullius",
+        "Opposing Euro and Indigenous Worldviews",
+        "Importance of Identity",
+        "Worldview impact on perspective",
+        "Metis identity",
+        "Aboriginal rights"
+        ];
+
+        const correctAnswers = {
+        "Creation Stories": "Історії створення",
+        "Origin Theories of Canada": "Теорії походження Канади",
+        "First Contact": "Перший контакт",
+        "Doctrine of Discovery": "Доктрина відкриття",
+        "Terra Nullius": "Нічия земля",
+        "Opposing Euro and Indigenous Worldviews": "Різні світогляди корінного населення та європейців",
+        "Importance of Identity": "Важливість ідентичності",
+        "Worldview impact on perspective": "Вплив світогляду на перспективу",
+        "Metis identity": "Метиська  ідентичність",
+        "Aboriginal rights": "Права аборигенів"
+        };
+
+        const fakeAnswers = [
+        "Підписання договорів",
+        "Європейські закони",
+        "Королівський указ",
+        "Заснування міст",
+        "Переселення народів",
+        "Військовий конфлікт",
+        "Фольклорна традиція",
+        "Імперське право",
+        "Історичні документи",
+        "Підкорення територій"
+        ];
+
+        const selectedQuestionEl = document.getElementById("selected-question");
+        const answerButtons = document.getElementById("answer-buttons");
+        const resultEl = document.getElementById("result");
+        const nextButton = document.getElementById("next-button");
+        const completionMessage = document.getElementById("completion-message");
+        const stats = document.getElementById("stats");
+        const quizSection = document.getElementById("quiz-section");
+
+        let remainingQuestions = [];
+        let currentQuestion = "";
+        let correctCount = 0;
+        let wrongCount = 0;
+
+        function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+        }
+
+        function getRandomAnswers(correct) {
+        const wrong = fakeAnswers
+            .filter(f => f !== correct)
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 2);
+        return shuffle([correct, ...wrong]);
+        }
+
+        function showNextQuestion() {
+        resultEl.textContent = "";
+        nextButton.style.display = "none";
+        answerButtons.innerHTML = "";
+
+        if (remainingQuestions.length === 0) {
+            showCompletion();
+            return;
+        }
+
+        currentQuestion = remainingQuestions.splice(Math.floor(Math.random() * remainingQuestions.length), 1)[0];
+        selectedQuestionEl.textContent = currentQuestion;
+
+        const correct = correctAnswers[currentQuestion];
+        const options = getRandomAnswers(correct);
+
+        options.forEach(answer => {
+            const btn = document.createElement("button");
+            btn.textContent = answer;
+            btn.classList.add("answer-btn");
+            btn.onclick = () => checkAnswer(answer, correct, btn);
+            answerButtons.appendChild(btn);
+        });
+        }
+
+        function checkAnswer(selected, correct, button) {
+        const allButtons = document.querySelectorAll(".answer-btn");
+        allButtons.forEach(btn => btn.disabled = true);
+
+        if (selected === correct) {
+            button.classList.add("correct");
+            resultEl.textContent = "✅ Правильно!";
+            correctCount++;
+        } else {
+            button.classList.add("wrong");
+            resultEl.textContent = `❌ Неправильно. Правильна відповідь: ${correct}`;
+            wrongCount++;
+        }
+
+        nextButton.style.display = "inline-block";
+        }
+
+        nextButton.addEventListener("click", showNextQuestion);
+
+        function showCompletion() {
+        quizSection.style.display = "none";
+        completionMessage.style.display = "block";
+        stats.textContent = `Правильних: ${correctCount}, Неправильних: ${wrongCount}`;
+        }
+
+        function restartQuiz() {
+        remainingQuestions = [...questions];
+        correctCount = 0;
+        wrongCount = 0;
+        completionMessage.style.display = "none";
+        quizSection.style.display = "flex";
+        showNextQuestion();
+        }
+
+        // Старт
+        restartQuiz();
+    </script>
+    </body>
+    </html>
